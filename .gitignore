@@ -1,0 +1,79 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Virtual environment
+venv/
+env/
+.env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+*.env
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+backend/data/*.db
+
+# Dataset CSVs (large files)
+ml/*.csv
+backend/data/*.csv
+
+# ML trained models
+ml/trained_models/*.pkl
+ml/trained_models/*.pt
+ml/trained_models/*.h5
+ml/trained_models/*.joblib
+
+# Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test cache
+.pytest_cache/
+.coverage
+htmlcov/
+*.test
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Node modules (if any)
+node_modules/
+
+# Docker volumes
+docker-data/
+
+# Temporary files
+tmp/
+temp/
+
+# Gemini agent files
+.gemini/
+.agents/
+
+# Screenshots (optional - remove if you want to commit them)
+# docs/screenshots/

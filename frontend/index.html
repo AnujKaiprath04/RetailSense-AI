@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RetailSense AI - Enterprise Retail Intelligence Platform</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+    <!-- Premium Fonts: Plus Jakarta Sans + Inter + JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Custom Application CSS -->
+    <link href="/static/css/style.css" rel="stylesheet">
+    
+    <!-- Layout Critical Override -->
+    <style>
+        html body { margin: 0 !important; padding: 0 !important; overflow-x: hidden !important; font-family: 'Inter', system-ui, sans-serif !important; }
+        h1, h2, h3, h4, h5, h6, .card-rs-title, .header-greeting, .sidebar-brand-text { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif !important; }
+        .kpi-value-num, .font-mono { font-family: 'JetBrains Mono', monospace !important; }
+        
+        html body div.app-wrapper { display: flex !important; flex-direction: row !important; min-height: 100vh !important; }
+        html body aside.app-sidebar {
+            position: fixed !important; top: 0 !important; left: 0 !important;
+            width: 256px !important; min-width: 256px !important; height: 100vh !important;
+            background-color: #0b0f19 !important; color: #f8fafc !important;
+            display: flex !important; flex-direction: column !important;
+            justify-content: space-between !important; padding: 0 !important;
+            z-index: 1040 !important; overflow-y: auto !important;
+            border-right: 1px solid rgba(255,255,255,0.07) !important;
+        }
+        html body main.app-content {
+            margin-left: 256px !important; flex: 1 !important;
+            min-height: 100vh !important; padding: 0 !important;
+        }
+        html body aside.app-sidebar nav.sidebar-menu {
+            display: flex !important; flex-direction: column !important; width: 100% !important; gap: 4px !important;
+        }
+        html body aside.app-sidebar button.sidebar-nav-item {
+            display: flex !important; flex-direction: row !important;
+            align-items: center !important; gap: 11px !important;
+            padding: 0.65rem 0.85rem !important; border-radius: 10px !important;
+            color: #8292b4 !important; font-size: 0.88rem !important; font-weight: 500 !important;
+            background: transparent !important; border: none !important;
+            width: 100% !important; cursor: pointer !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        html body aside.app-sidebar button.sidebar-nav-item:hover {
+            color: #f8fafc !important; background: rgba(255,255,255,0.06) !important;
+        }
+        html body aside.app-sidebar button.sidebar-nav-item.active {
+            color: #ffffff !important;
+            background: #3b82f6 !important;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3) !important;
+            font-weight: 600 !important;
+        }
+        /* Theme-aware backgrounds */
+        [data-bs-theme="light"] main.app-content, [data-bs-theme="light"] body { background-color: #f8fafc !important; }
+        [data-bs-theme="dark"]  main.app-content, [data-bs-theme="dark"]  body { background-color: #0b0f19 !important; }
+        [data-bs-theme="light"] .top-header { background: rgba(255,255,255,0.85) !important; border-color: #e2e8f0 !important; backdrop-filter: blur(16px) !important; }
+        [data-bs-theme="dark"]  .top-header { background: rgba(17,24,39,0.85) !important; border-color: #1f293d !important; backdrop-filter: blur(16px) !important; }
+        [data-bs-theme="light"] .kpi-card-rs, [data-bs-theme="light"] .card-rs, [data-bs-theme="light"] .apple-card { background: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; }
+        [data-bs-theme="dark"]  .kpi-card-rs, [data-bs-theme="dark"]  .card-rs, [data-bs-theme="dark"]  .apple-card { background: #111827 !important; border-color: #1f293d !important; color: #f8fafc !important; }
+        [data-bs-theme="light"] .kpi-value-num, [data-bs-theme="light"] .card-rs-title { color: #0f172a !important; }
+        [data-bs-theme="dark"]  .kpi-value-num, [data-bs-theme="dark"]  .card-rs-title { color: #f8fafc !important; }
+        [data-bs-theme="light"] .search-box-rs, [data-bs-theme="light"] .btn-rs-icon, [data-bs-theme="light"] .dropdown-rs-select { background: #f8fafc !important; border-color: #e2e8f0 !important; color: #334155 !important; }
+        [data-bs-theme="dark"]  .search-box-rs, [data-bs-theme="dark"]  .btn-rs-icon, [data-bs-theme="dark"]  .dropdown-rs-select { background: #111827 !important; border-color: #1f293d !important; color: #cbd5e1 !important; }
+    </style>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body style="margin:0;padding:0;overflow-x:hidden;font-family:'Inter','DM Sans',system-ui,sans-serif;">
+
+
+    <div class="app-wrapper" style="display:flex;flex-direction:row;min-height:100vh;width:100vw;">
+        
+        <!-- Left Dark Sidebar -->
+        <aside class="app-sidebar" style="position:fixed;top:0;left:0;width:256px;min-width:256px;height:100vh;background-color:#0d1117;display:flex;flex-direction:column;justify-content:space-between;padding:0;z-index:1040;overflow-y:auto;border-right:1px solid rgba(255,255,255,0.06);">
+            <div class="sidebar-inner">
+                <!-- Brand Title -->
+                <a class="sidebar-brand" href="#">
+                    <div class="sidebar-brand-icon">
+                        <i class="fa-solid fa-cube"></i>
+                    </div>
+                    <div>
+                        <div class="sidebar-brand-text">RetailSense <span style="color:#3b82f6;">AI</span></div>
+                        <span class="sidebar-brand-sub">Smarter Stores. Better Decisions.</span>
+                    </div>
+                </a>
+
+                <!-- Vertical Navigation Menu -->
+                <nav class="sidebar-menu">
+                    <button class="sidebar-nav-item active" onclick="switchTabDirect('#dashboardTab')">
+                        <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#forecastingTab')">
+                        <i class="fa-solid fa-chart-line"></i> <span>Forecast</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#staffTab')">
+                        <i class="fa-solid fa-users-gear"></i> <span>Shift Optimizer</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#visionTab')">
+                        <i class="fa-solid fa-video"></i> <span>Vision AI (CCTV)</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#simulatorTab')">
+                        <i class="fa-solid fa-sliders"></i> <span>Simulator</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#xaiTab')">
+                        <i class="fa-solid fa-sparkles"></i> <span>Explainable AI</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#behaviorTab')">
+                        <i class="fa-solid fa-users-rectangle"></i> <span>Behavior AI</span>
+                    </button>
+                    <button class="sidebar-nav-item" onclick="switchTabDirect('#managerTab')">
+                        <i class="fa-solid fa-trophy"></i> <span>Cockpit</span>
+                    </button>
+                </nav>
+
+                <!-- Sidebar AI Assistant Widget -->
+                <div class="sidebar-ai-card">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-user-astronaut text-purple fs-6"></i>
+                            <span class="fw-bold text-white small">AI Assistant</span>
+                        </div>
+                        <span class="sidebar-ai-badge">BETA</span>
+                    </div>
+                    <p class="sidebar-ai-text">Hello! I can help you analyze performance, optimize staffing and predict footfall.</p>
+                    <button class="btn btn-sidebar-ai" onclick="toggleSiriWindow()">Start a conversation</button>
+                </div>
+            </div>
+
+
+
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="app-content" style="margin-left:256px;flex:1;min-height:100vh;padding:0;">
+            
+            <!-- Top Header Bar -->
+            <header class="top-header">
+                <div>
+                    <h4 class="header-greeting">Welcome Back</h4>
+                    <p class="header-subtext">Here's what's happening at your store today.</p>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                    <div class="search-box-rs d-none d-md-flex">
+                        <i class="fa-solid fa-magnifying-glass text-muted small"></i>
+                        <input type="text" id="globalSearchInput" placeholder="Search metrics, tabs..." oninput="handleGlobalSearch(this.value)">
+                    </div>
+
+                    <button class="btn-rs-icon" onclick="toggleTheme()" title="Toggle Light/Dark Theme">
+                        <i class="fa-solid fa-sun text-warning" id="themeToggleIcon"></i>
+                    </button>
+
+                    <select id="headerDateFilter" class="dropdown-rs-select d-none d-lg-block" onchange="handleFilterChange()">
+                        <option value="May 8, 2025">May 8, 2025</option>
+                        <option value="May 7, 2025">May 7, 2025</option>
+                        <option value="May 6, 2025">May 6, 2025</option>
+                        <option value="May 5, 2025">May 5, 2025</option>
+                    </select>
+
+                    <select id="headerDeptFilter" class="dropdown-rs-select d-none d-lg-block" onchange="handleFilterChange()">
+                        <option value="all">All Departments</option>
+                        <option value="grocery">Grocery</option>
+                        <option value="beverages">Beverages</option>
+                        <option value="personal_care">Personal Care</option>
+                    </select>
+                </div>
+            </header>
+
+            <!-- Tab Content Screens -->
+            <div class="page-content">
+            <div class="tab-content">
+                
+                <!-- 1. Dashboard Main Tab -->
+                <div class="tab-pane fade show active" id="dashboardTab">
+
+                    
+                    <!-- KPI Cards Grid (6 Cards in 1 Row) -->
+                    <div class="row g-3 mb-4">
+                        
+                        <!-- Card 1: Store Health Index -->
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <div class="kpi-card-rs">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="kpi-icon-circle icon-green">
+                                        <i class="fa-solid fa-heart-pulse"></i>
+                                    </div>
+                                    <i class="fa-solid fa-circle-info text-muted cursor-pointer" onclick="showInfoModal('Store Health Index', 'Composite Metric Engine', 'Score based on Revenue, Footfall, Queue, and Staffing.', 'Shows overall store operational grade.')"></i>
+                                </div>
+                                <div class="kpi-label-text">Store Health Index</div>
+                                <div class="kpi-value-num" id="kpiHealthScore">94.5 <small class="fs-6 text-muted">/100</small></div>
+                                <div class="kpi-delta-text text-success"><i class="fa-solid fa-arrow-up me-1"></i> +8.2% vs yesterday</div>
+                                <div class="sparkline-box-mac"><canvas id="sparkline1"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Live Footfall -->
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <div class="kpi-card-rs">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="kpi-icon-circle icon-blue">
+                                        <i class="fa-solid fa-users"></i>
+                                    </div>
+                                    <i class="fa-solid fa-circle-info text-muted cursor-pointer" onclick="showInfoModal('Live Footfall', 'OpenCV Counter', 'Tracks real-time visitor arrivals.', 'Baseline metric for cashier allocation.')"></i>
+                                </div>
+                                <div class="kpi-label-text">Live Footfall</div>
+                                <div class="kpi-value-num" id="kpiLiveFootfall">1,248</div>
+                                <div class="kpi-delta-text text-primary"><i class="fa-solid fa-arrow-up me-1"></i> +12% vs last hour</div>
+                                <div class="sparkline-box-mac"><canvas id="sparkline2"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: Est. Daily Revenue -->
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <div class="kpi-card-rs">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="kpi-icon-circle icon-purple">
+                                        <i class="fa-solid fa-wallet"></i>
+                                    </div>
+                                    <i class="fa-solid fa-circle-info text-muted cursor-pointer" onclick="showInfoModal('Est. Daily Revenue', 'Basket Conversion Model', 'Projects daily store sales in Rupees.', 'Maps footfall directly to financial revenue.')"></i>
+                                </div>
+                                <div class="kpi-label-text">Est. Daily Revenue</div>
+                                <div class="kpi-value-num" id="kpiEstRevenue">₹28,560</div>
+                                <div class="kpi-delta-text text-purple" style="color:#a855f7;"><i class="fa-solid fa-arrow-up me-1"></i> +8.4% vs target</div>
+                                <div class="sparkline-box-mac"><canvas id="sparkline3"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: Avg Queue Wait -->
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <div class="kpi-card-rs">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="kpi-icon-circle icon-orange">
+                                        <i class="fa-solid fa-clock"></i>
+                                    </div>
+                                    <i class="fa-solid fa-circle-info text-muted cursor-pointer" onclick="showInfoModal('Avg Queue Wait', 'M/M/c Queuing Model', 'Estimates customer wait time in minutes.', 'Calculated via Erlang-C queuing theory.')"></i>
+                                </div>
+                                <div class="kpi-label-text">Avg Queue Wait</div>
+                                <div class="kpi-value-num text-warning" id="kpiAvgWait">1.6 min</div>
+                                <div class="kpi-delta-text text-success"><i class="fa-solid fa-arrow-down me-1"></i> -0.4 min vs yesterday</div>
+                                <div class="sparkline-box-mac"><canvas id="sparkline4"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 5: Active Cashiers -->
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <div class="kpi-card-rs">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="kpi-icon-circle icon-teal">
+                                        <i class="fa-solid fa-calculator"></i>
+                                    </div>
+                                    <i class="fa-solid fa-circle-info text-muted cursor-pointer" onclick="showInfoModal('Active Cashiers', 'OR-Tools Optimization', 'Active vs recommended checkout counters.', 'OR-Tools guarantees wait times < 3 mins.')"></i>
+                                </div>
+                                <div class="kpi-label-text">Active Cashiers</div>
+                                <div class="kpi-value-num" id="kpiActiveCashiers">2 / 4</div>
+                                <div class="kpi-delta-text text-teal" style="color:#14b8a6;"><i class="fa-solid fa-circle-check me-1"></i> Optimal</div>
+                                <div class="sparkline-box-mac"><canvas id="sparkline5"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Card 6: Active Staff -->
+                        <div class="col-xl-2 col-md-4 col-6">
+                            <div class="kpi-card-rs">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <div class="kpi-icon-circle icon-pink">
+                                        <i class="fa-solid fa-user-check"></i>
+                                    </div>
+                                    <i class="fa-solid fa-circle-info text-muted cursor-pointer" onclick="showInfoModal('Active Staff', 'Staff Roster Database', 'Active store employees across departments.', 'Full shift coverage across all aisles.')"></i>
+                                </div>
+                                <div class="kpi-label-text">Active Staff</div>
+                                <div class="kpi-value-num" id="kpiActiveStaff">26</div>
+                                <div class="kpi-delta-text text-success"><i class="fa-solid fa-circle-check me-1"></i> 100% Coverage</div>
+                                <div class="sparkline-box-mac"><canvas id="sparkline6"></canvas></div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Alert Banner (High Priority) -->
+                    <div class="alert-banner-rs" id="queueAlertBanner">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="alert-icon-wrap">
+                                <i class="fa-solid fa-triangle-exclamation"></i>
+                            </div>
+                            <div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <h6 class="alert-title-rs">Queue Congestion Spike Detected</h6>
+                                    <span class="badge-alert-high">High Priority</span>
+                                </div>
+                                <p class="alert-body-rs">Counter 3 queue length exceeded optimal threshold. Projected revenue loss <strong>₹12,500</strong> if unattended for 30 mins.</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-alert-outline" onclick="showInfoModal('Queue Alert', 'Anomaly Detector', 'Counter 3 queue spike detected.')">View Details</button>
+                            <button class="btn btn-alert-solid" onclick="resolveQueueAlert('Open Counter 5')">Take Action</button>
+                        </div>
+                    </div>
+
+                    <!-- Middle Section (Chart + Real-Time Overview) -->
+                    <div class="row g-4 mb-4">
+                        
+                        <!-- Left 8 Cols: Footfall Forecast Curve Chart -->
+                        <div class="col-lg-8">
+                            <div class="card-rs h-100">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h5 class="card-rs-title">Footfall Forecast Curve</h5>
+                                            <i class="fa-solid fa-circle-info text-muted fs-6 cursor-pointer" onclick="showInfoModal('Footfall Forecast Curve', 'XGBoost v2.1', '24-hour predictive visitor trends.')"></i>
+                                        </div>
+                                        <p class="card-rs-sub">24-hour predictive store visitor trend analysis</p>
+                                    </div>
+                                    <select class="dropdown-rs-select" style="font-size:0.78rem;" id="chartTimeframeSelect" onchange="handleTimeframeChange(this.value)">
+                                        <option value="24h">24 Hours</option>
+                                        <option value="7d">7 Days</option>
+                                        <option value="30d">30 Days</option>
+                                    </select>
+                                </div>
+                                <div style="height: 330px;">
+                                    <canvas id="footfallChartCanvas"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right 4 Cols: Real-time Overview & Top Alerts -->
+                        <div class="col-lg-4">
+                            <div class="card-rs h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h5 class="card-rs-title">Real-time Overview</h5>
+                                        <span class="badge bg-success bg-opacity-10 text-success fw-bold" style="font-size:0.7rem;"><i class="fa-solid fa-circle me-1" style="font-size:0.5rem;"></i> Live</span>
+                                    </div>
+
+                                    <div class="progress-rs-wrap">
+                                        <div class="progress-rs-label">
+                                            <span><i class="fa-solid fa-user me-2 text-primary"></i> Counter Utilization</span>
+                                            <span class="fw-bold">75%</span>
+                                        </div>
+                                        <div class="progress-rs-bar"><div class="progress-rs-fill bg-primary" style="width:75%;"></div></div>
+                                    </div>
+
+                                    <div class="progress-rs-wrap">
+                                        <div class="progress-rs-label">
+                                            <span><i class="fa-solid fa-users me-2 text-warning"></i> Queue Length</span>
+                                            <span class="fw-bold">18 people</span>
+                                        </div>
+                                        <div class="progress-rs-bar"><div class="progress-rs-fill bg-warning" style="width:60%;"></div></div>
+                                    </div>
+
+                                    <div class="progress-rs-wrap">
+                                        <div class="progress-rs-label">
+                                            <span><i class="fa-solid fa-user-group me-2 text-danger"></i> Crowd Density</span>
+                                            <span class="fw-bold text-danger">High</span>
+                                        </div>
+                                        <div class="progress-rs-bar"><div class="progress-rs-fill bg-danger" style="width:85%;"></div></div>
+                                    </div>
+
+                                    <div class="progress-rs-wrap">
+                                        <div class="progress-rs-label">
+                                            <span><i class="fa-solid fa-chart-line me-2 text-teal"></i> Conversion Rate</span>
+                                            <span class="fw-bold">18.6%</span>
+                                        </div>
+                                        <div class="progress-rs-bar"><div class="progress-rs-fill bg-teal" style="width:45%; background:#14b8a6;"></div></div>
+                                    </div>
+
+                                    <div class="d-flex align-items-center justify-content-between pt-2">
+                                        <span class="small text-muted fw-bold"><i class="fa-solid fa-basket-shopping me-2 text-purple"></i> Basket Size</span>
+                                        <span class="fw-bold fs-6">₹1,256</span>
+                                    </div>
+                                </div>
+
+                                <div class="pt-3 border-top border-opacity-10">
+                                    <div class="d-flex align-items-center justify-content-between mb-2">
+                                        <span class="fw-bold small">Top Alerts</span>
+                                        <a href="#" class="small text-primary text-decoration-none fw-bold">View All</a>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between py-1">
+                                        <small class="text-muted"><i class="fa-solid fa-bell me-1 text-warning"></i> Stagger Cashier Evening Breaks</small>
+                                        <span class="badge-apple badge-med">Medium</span>
+                                    </div>
+                                    <div class="d-flex align-items-center justify-content-between py-1">
+                                        <small class="text-muted"><i class="fa-solid fa-bell me-1 text-danger"></i> High Crowd Expected at 6 PM</small>
+                                        <span class="badge-apple badge-high">High</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Bottom Row (AI Recommendations + Department Performance + Footfall Heatmap) -->
+                    <div class="row g-4">
+                        
+                        <!-- AI Recommendations Card -->
+                        <div class="col-lg-4">
+                            <div class="card-rs h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <h5 class="card-rs-title">AI Recommendations</h5>
+                                        <a href="#" class="small text-primary text-decoration-none fw-bold">View All</a>
+                                    </div>
+
+                                    <div class="p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-20 mb-3">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="fa-solid fa-circle-plus text-success fs-5"></i>
+                                                <span class="fw-bold text-main">Open 1 Additional Counter</span>
+                                            </div>
+                                            <span class="badge bg-success bg-opacity-20 text-success fw-bold" style="font-size:0.68rem;">High Impact</span>
+                                        </div>
+                                        <p class="small text-muted mb-0">Expected to reduce avg wait time by <strong>42%</strong> and increase revenue by <strong>₹18,000</strong>.</p>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex align-items-center justify-content-between pt-2">
+                                    <small class="text-muted">Confidence 94% • Impact High</small>
+                                    <button class="btn btn-sm btn-success fw-bold px-3" onclick="applyRecommendation('Open 1 Counter')">Apply Now</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Department Performance Table -->
+                        <div class="col-lg-4">
+                            <div class="card-rs h-100">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h5 class="card-rs-title">Department Performance</h5>
+                                    <a href="#" class="small text-primary text-decoration-none fw-bold">View All</a>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table-rs-perf align-middle">
+                                        <thead>
+                                            <tr>
+                                                <th>Department</th>
+                                                <th>Revenue</th>
+                                                <th>Footfall</th>
+                                                <th>Conv. Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><i class="fa-solid fa-basket-shopping me-2 text-primary"></i> Grocery</td>
+                                                <td>₹12,450</td>
+                                                <td>542</td>
+                                                <td class="text-success">18.6%</td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fa-solid fa-wine-glass me-2 text-purple"></i> Beverages</td>
+                                                <td>₹6,230</td>
+                                                <td>312</td>
+                                                <td class="text-success">17.8%</td>
+                                            </tr>
+                                            <tr>
+                                                <td><i class="fa-solid fa-pump-soap me-2 text-teal"></i> Personal Care</td>
+                                                <td>₹4,850</td>
+                                                <td>268</td>
+                                                <td class="text-success">16.9%</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footfall Heatmap Blueprint Card -->
+                        <div class="col-lg-4">
+                            <div class="card-rs h-100">
+                                <div class="d-flex align-items-center justify-content-between mb-3">
+                                    <h5 class="card-rs-title">Footfall Heatmap</h5>
+                                    <a href="#" class="small text-primary text-decoration-none fw-bold" onclick="switchTabDirect('#visionTab')">View Full</a>
+                                </div>
+                                <div class="heatmap-blueprint-box text-center">
+                                    <img id="cctvHeatmap" src="/api/v1/vision/heatmap" class="img-fluid rounded-3" alt="Heatmap Floorplan">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- 2. Footfall Forecasting & Model Comparison Tab -->
+                <div class="tab-pane fade" id="forecastingTab">
+                    <div class="apple-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="fa-solid fa-scale-balanced me-2 text-primary"></i> ML Algorithm Comparison Matrix
+                                </h5>
+                                <p class="text-muted small mb-0">Evaluated over 90 days of empirical retail store time-series telemetry</p>
+                            </div>
+                            <button class="btn btn-mac btn-sm" onclick="fetchModelComparison()"><i class="fa-solid fa-rotate me-1"></i> Benchmark</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-apple align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Algorithm</th>
+                                        <th>MAE (Customers)</th>
+                                        <th>RMSE</th>
+                                        <th>MAPE (%)</th>
+                                        <th>R² Score</th>
+                                        <th>Training Speed</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="modelComparisonTbody">
+                                    <!-- Loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Staff Optimization Tab -->
+                <div class="tab-pane fade" id="staffTab">
+                    <div class="apple-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1">
+                                    <i class="fa-solid fa-users-gear me-2 text-primary"></i> Integer Linear Programming Shift Schedule
+                                </h5>
+                                <p class="text-muted small mb-0">Google OR-Tools solver optimizing department staffing & labor costs</p>
+                            </div>
+                            <button class="btn btn-mac btn-sm" onclick="fetchStaffOptimization()"><i class="fa-solid fa-sliders me-1"></i> Re-solve Shifts</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-apple align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Employee Name</th>
+                                        <th>Department Role</th>
+                                        <th>Assigned Shift Window</th>
+                                        <th>Hours Worked</th>
+                                        <th>Estimated Cost</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="staffScheduleTbody">
+                                    <!-- Loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Computer Vision & CCTV Analytics Tab -->
+                <div class="tab-pane fade" id="visionTab">
+                    <div class="row g-4">
+                        <div class="col-lg-6">
+                            <div class="apple-card">
+                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-video me-2 text-danger"></i> Live CCTV Frame Stream</h5>
+                                <div class="text-center rounded-4 overflow-hidden p-1 bg-black border border-white border-opacity-10">
+                                    <img id="liveCctvStream" src="/api/v1/vision/stream-frame" class="img-fluid rounded-3" alt="CCTV Stream">
+                                </div>
+                                <div class="d-flex justify-content-around mt-3 text-center">
+                                    <div>
+                                        <div class="text-muted small">Live Occupancy</div>
+                                        <div class="fs-4 fw-bold text-primary" id="visionOccupancy">12</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Queue Length</div>
+                                        <div class="fs-4 fw-bold text-warning" id="visionQueueCount">4</div>
+                                    </div>
+                                    <div>
+                                        <div class="text-muted small">Est. Wait Time</div>
+                                        <div class="fs-4 fw-bold text-danger" id="visionWaitSec">180s</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="apple-card">
+                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-fire me-2 text-warning"></i> 2D Thermal Density Heatmap</h5>
+                                <div class="text-center rounded-4 overflow-hidden p-1 bg-black border border-white border-opacity-10">
+                                    <img src="/api/v1/vision/heatmap" class="img-fluid rounded-3" alt="Heatmap">
+                                </div>
+                                <p class="small text-muted mt-3 mb-0">Accumulated spatial tracking array highlighting highest footfall density zones.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Digital Twin Scenario Simulator Tab -->
+                <div class="tab-pane fade" id="simulatorTab">
+                    <div class="row g-4">
+                        <div class="col-lg-5">
+                            <div class="apple-card">
+                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-sliders me-2 text-primary"></i> Operational Variable Controls</h5>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <label class="text-muted small">Promotional Discount</label>
+                                        <span class="text-primary fw-bold" id="simPromoVal">15%</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="simPromo" min="0" max="50" value="15" oninput="runSimulation()">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <label class="text-muted small">Rainfall Forecast</label>
+                                        <span class="text-primary fw-bold" id="simRainVal">0 mm</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="simRain" min="0" max="25" value="0" oninput="runSimulation()">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <label class="text-muted small">Total Active Staff</label>
+                                        <span class="text-primary fw-bold" id="simStaffVal">26 staff</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="simStaff" min="10" max="40" value="26" oninput="runSimulation()">
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <label class="text-muted small">Open Cashier Counters</label>
+                                        <span class="text-primary fw-bold" id="simCashiersVal">6 cashiers</span>
+                                    </div>
+                                    <input type="range" class="form-range" id="simCashiers" min="2" max="10" value="6" oninput="runSimulation()">
+                                </div>
+                                <div class="form-check mb-4">
+                                    <input class="form-check-input" type="checkbox" id="simHoliday" onchange="runSimulation()">
+                                    <label class="form-check-label text-muted" for="simHoliday">Holiday / Festival Day</label>
+                                </div>
+                                <button class="btn btn-apple-primary w-100 py-2" onclick="runSimulation()"><i class="fa-solid fa-play me-1"></i> Run Simulation</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-7">
+                            <div class="apple-card">
+                                <h5 class="fw-bold mb-3"><i class="fa-solid fa-square-poll-vertical me-2 text-success"></i> Projections & Financial Impact</h5>
+                                <div class="row g-3 mb-4">
+                                    <div class="col-md-4">
+                                        <div class="p-3 apple-card text-center">
+                                            <div class="text-muted small">Simulated Footfall</div>
+                                            <div class="fs-3 fw-bold text-primary" id="simFootfallRes">315</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 apple-card text-center">
+                                            <div class="text-muted small">Simulated Revenue</div>
+                                            <div class="fs-3 fw-bold text-success" id="simRevenueRes">₹18,68,500</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="p-3 apple-card text-center">
+                                            <div class="text-muted small">Net Profit Margin</div>
+                                            <div class="fs-3 fw-bold text-warning" id="simProfitRes">₹6,15,000</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 apple-card bg-black bg-opacity-40 rounded-4">
+                                    <h6 class="fw-bold mb-1 text-primary">Executive Summary</h6>
+                                    <p class="mb-0 text-muted small" id="simSummaryText">Adjust controls to execute dynamic simulation.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Customer Behavior Analytics Tab -->
+                <div class="tab-pane fade" id="behaviorTab">
+                    <div class="apple-card mb-4">
+                        <h5 class="fw-bold mb-3"><i class="fa-solid fa-users-rectangle me-2 text-info"></i> Customer Behavior & Traffic Insights</h5>
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="p-3 apple-card text-center">
+                                    <div class="text-muted small">Repeat Visitors</div>
+                                    <div class="fs-3 fw-bold text-info">64.2%</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 apple-card text-center">
+                                    <div class="text-muted small">Avg Dwell Time</div>
+                                    <div class="fs-3 fw-bold text-warning">24.5 min</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 apple-card text-center">
+                                    <div class="text-muted small">Conversion Rate</div>
+                                    <div class="fs-3 fw-bold text-success">34.8%</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="p-3 apple-card text-center">
+                                    <div class="text-muted small">Busiest Zone</div>
+                                    <div class="fs-3 fw-bold text-primary">Grocery</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Manager Cockpit Tab -->
+                <div class="tab-pane fade" id="managerTab">
+                    <div class="apple-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1"><i class="fa-solid fa-trophy me-2 text-warning"></i> Manager Performance Scorecard</h5>
+                                <p class="text-muted small mb-0">Store Manager: <strong>Store Admin</strong> (Daily Rank: #1 Store Manager)</p>
+                            </div>
+                            <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30 fs-6">96.8 / 100 Score</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <span class="badge-apple badge-low"><i class="fa-solid fa-award me-1"></i> Queue Master</span>
+                            <span class="badge-apple badge-med"><i class="fa-solid fa-coins me-1"></i> Profit Champion</span>
+                            <span class="badge-apple badge-high"><i class="fa-solid fa-user-check me-1"></i> Staffing Wizard</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. Explainable AI Tab -->
+                <div class="tab-pane fade" id="xaiTab">
+                    <div class="apple-card mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <h5 class="fw-bold mb-1"><i class="fa-solid fa-wand-magic-sparkles me-2 text-purple"></i> SHAP Feature Attribution</h5>
+                                <p class="text-muted small mb-0">Root-cause feature importance explaining retail traffic drivers</p>
+                            </div>
+                            <button class="btn btn-mac btn-sm" onclick="fetchShapExplanation()"><i class="fa-solid fa-rotate me-1"></i> Refresh</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-apple align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Feature Name</th>
+                                        <th>Attribution Impact</th>
+                                        <th>Importance Score</th>
+                                        <th>Actual Telemetry Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="shapTbody">
+                                    <!-- Loaded dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            </div><!-- /page-content -->
+
+        </main>
+
+
+    </div>
+
+    <!-- Contextual AI Assistant Floating Drawer Window -->
+    <div class="siri-window" id="siriWindow" style="display:none;">
+        <div class="siri-win-header">
+            <div class="siri-win-title">
+                <div class="siri-icon-small"><i class="fa-solid fa-sparkles"></i></div>
+                <span>RetailSense AI Assistant</span>
+            </div>
+            <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30" style="font-size:0.65rem;">ONLINE</span>
+        </div>
+        <div class="siri-win-body" id="chatMessages">
+            <div class="siri-bubble bot">
+                Hello! I am your RetailSense AI Assistant. How can I optimize your store operations today?
+            </div>
+        </div>
+        <div class="siri-win-footer">
+            <div class="siri-input-box">
+                <input type="text" id="chatInput" placeholder="Ask AI Assistant: 'Why is tomorrow crowded?'" onkeypress="if(event.key==='Enter') sendAIChatQuery()">
+                <button class="btn btn-apple-primary btn-sm rounded-circle p-0 me-1 d-flex align-items-center justify-content-center" style="width:28px; height:28px;" onclick="sendAIChatQuery()">
+                    <i class="fa-solid fa-arrow-up text-white small"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feature Info Explanation Modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content apple-card border-0 p-3">
+                <div class="modal-header border-0 pb-2">
+                    <div class="d-flex align-items-center">
+                        <div class="p-2 rounded-circle bg-primary bg-opacity-20 me-2 d-flex align-items-center justify-content-center" style="width:36px; height:36px;">
+                            <i class="fa-solid fa-circle-info text-primary fs-5"></i>
+                        </div>
+                        <div>
+                            <h5 class="modal-title fw-bold text-white mb-0" id="infoModalTitle">Feature Name</h5>
+                            <small class="text-primary font-weight-bold" id="infoModalModel">Underlying Algorithm</small>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-white mb-1"><i class="fa-solid fa-book-open text-info me-2"></i> What this module does:</h6>
+                        <p class="text-muted small mb-0" id="infoModalDesc">Description text...</p>
+                    </div>
+
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-apple-primary w-100 py-2" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Application JS -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
