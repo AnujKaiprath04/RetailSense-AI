@@ -537,19 +537,67 @@ async function sendAIChatQuery() {
     appendChatMessage(query, 'user');
     input.value = '';
 
-    let botReply = "RetailSense AI Assistant: Analysis indicates peak traffic today at 6 PM. We recommend opening 1 extra cashier counter and scheduling +4 staff.";
-    if (query.toLowerCase().includes("staff")) {
-        botReply = "Based on OR-Tools ILP solver, assign 26 active staff (10 Cashiers, 8 Grocery, 5 Electronics, 3 Security). Estimated cost: ₹52,000.";
+    // Show loading bubble
+    const loadingId = 'loading-' + Date.now();
+    appendChatMessage('⚡ Groq LLaMA-3.3-70B thinking...', 'bot', loadingId);
+
+    try {
+        const headers = { 'Content-Type': 'application/json' };
+        if (jwtToken) headers['Authorization'] = `Bearer ${jwtToken}`;
+
+        const res = await fetch(`${API_BASE}/ai-assistant/query`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ query: query })
+        });
+
+        const loadingBubble = document.getElementById(loadingId);
+        if (loadingBubble) loadingBubble.remove();
+
+        if (res.ok) {
+            const data = await res.json();
+            appendChatMessage(data.response, 'bot');
+
+            // Render suggested action buttons if returned
+            if (data.suggested_actions && data.suggested_actions.length > 0) {
+                const container = document.getElementById('chatMessages');
+                if (container) {
+                    const chipsDiv = document.createElement('div');
+                    chipsDiv.className = 'd-flex flex-wrap gap-1 mt-2 mb-2 ms-2';
+                    data.suggested_actions.forEach(actionText => {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn btn-xs btn-outline-primary rounded-pill text-start fs-7 py-1 px-2';
+                        btn.innerHTML = `<i class="fa-solid fa-bolt me-1 text-warning"></i>${actionText}`;
+                        btn.onclick = () => {
+                            showAppleToast(`Action Triggered: ${actionText}`, 'success');
+                        };
+                        chipsDiv.appendChild(btn);
+                    });
+                    container.appendChild(chipsDiv);
+                    container.scrollTop = container.scrollHeight;
+                }
+            }
+        } else {
+            appendChatMessage("RetailSense AI Copilot: Unable to reach AI server. Please try again.", 'bot');
+        }
+    } catch (e) {
+        const loadingBubble = document.getElementById(loadingId);
+        if (loadingBubble) loadingBubble.remove();
+        appendChatMessage("RetailSense AI Copilot: Connection error. Reconnecting to telemetry stream...", 'bot');
     }
-    appendChatMessage(botReply, 'bot');
 }
 
-function appendChatMessage(text, sender) {
+function appendChatMessage(text, sender, id = null) {
     const container = document.getElementById('chatMessages');
     if (!container) return;
     const msgDiv = document.createElement('div');
+    if (id) msgDiv.id = id;
     msgDiv.className = `siri-bubble ${sender}`;
-    msgDiv.innerText = text;
+    
+    // Support basic bold markdown formatting
+    let formattedText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    msgDiv.innerHTML = formattedText;
+
     container.appendChild(msgDiv);
     container.scrollTop = container.scrollHeight;
 }

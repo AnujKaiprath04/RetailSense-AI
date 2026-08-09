@@ -42,6 +42,8 @@ class Settings(BaseSettings):
     
     # OpenAI / LLM API Key (Optional)
     OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY", "")
+    GROQ_API_KEY: Optional[str] = os.getenv("GROQ_API_KEY", "")
+    GROQ_MODEL: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
 
     class Config:
         case_sensitive = True
