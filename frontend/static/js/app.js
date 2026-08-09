@@ -620,4 +620,36 @@ function startRealtimePoll() {
         const occ = document.getElementById('visionOccupancy');
         if (occ) occ.innerText = Math.floor(10 + Math.random() * 8);
     }, 5000);
+
+    // WebSocket Telemetry Client
+    try {
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${wsProtocol}//${window.location.host}/api/v1/telemetry/ws`;
+        const socket = new WebSocket(wsUrl);
+
+        socket.onopen = () => {
+            console.log('[RetailSense Telemetry] Real-time WebSocket connection established.');
+            const statusDot = document.getElementById('wsLiveDot');
+            if (statusDot) statusDot.className = 'badge bg-success-subtle text-success me-2 fs-6';
+        };
+
+        socket.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                if (data.live_footfall && document.getElementById('liveFootfallVal')) {
+                    document.getElementById('liveFootfallVal').innerText = data.live_footfall;
+                }
+                if (data.avg_wait_minutes && document.getElementById('avgQueueWaitVal')) {
+                    document.getElementById('avgQueueWaitVal').innerText = `${data.avg_wait_minutes} min`;
+                }
+                if (data.active_cashiers && document.getElementById('activeCashiersVal')) {
+                    document.getElementById('activeCashiersVal').innerText = `${data.active_cashiers} / 7`;
+                }
+            } catch (e) {}
+        };
+
+        socket.onerror = () => {
+            console.log('[RetailSense Telemetry] WebSocket fallback to HTTP polling.');
+        };
+    } catch (e) {}
 }

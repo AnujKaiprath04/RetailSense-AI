@@ -23,6 +23,7 @@ from app.api.v1.ai_assistant import router as ai_assistant_router
 from app.api.v1.simulator import router as simulator_router
 from app.api.v1.recommendations import router as recommendations_router
 from app.api.v1.reports import router as reports_router
+from app.api.v1.telemetry import router as telemetry_router
 
 # Initialize FastAPI App
 app = FastAPI(
@@ -63,6 +64,7 @@ app.include_router(ai_assistant_router, prefix=settings.API_V1_STR)
 app.include_router(simulator_router, prefix=settings.API_V1_STR)
 app.include_router(recommendations_router, prefix=settings.API_V1_STR)
 app.include_router(reports_router, prefix=settings.API_V1_STR)
+app.include_router(telemetry_router, prefix=settings.API_V1_STR)
 
 # Mount Frontend Static Directory if present
 frontend_static_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "static")
