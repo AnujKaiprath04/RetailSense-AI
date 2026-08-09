@@ -122,3 +122,12 @@ def test_vision_telemetry():
     data = response.json()
     assert "metrics" in data
     assert "live_occupancy" in data["metrics"]
+
+def test_telemetry_deep_health():
+    response = client.get("/api/v1/telemetry/health/deep")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["status"] == "HEALTHY"
+    assert "ml_model_registry" in data
+    assert "sla" in data
+

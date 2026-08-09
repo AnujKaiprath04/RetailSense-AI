@@ -35,9 +35,9 @@ def create_footfall_features(df: pd.DataFrame) -> pd.DataFrame:
 
     # Lag & Rolling Features
     if 'count' in df.columns:
-        df['lag_1h'] = df['count'].shift(1).fillna(method='bfill')
-        df['lag_24h'] = df['count'].shift(24).fillna(method='bfill')
-        df['lag_168h'] = df['count'].shift(168).fillna(method='bfill')  # 1 week lag
+        df['lag_1h'] = df['count'].shift(1).bfill()
+        df['lag_24h'] = df['count'].shift(24).bfill()
+        df['lag_168h'] = df['count'].shift(168).bfill()  # 1 week lag
         
         df['rolling_mean_3h'] = df['count'].shift(1).rolling(window=3, min_periods=1).mean()
         df['rolling_std_3h'] = df['count'].shift(1).rolling(window=3, min_periods=1).std().fillna(0)
